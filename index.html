@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>THE NEW AGE — Keyword Searcher</title>
+<link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 16 16'><text y='14' font-size='14'>📰</text></svg>">
+<link rel="stylesheet" href="assets/95css.min.css">
+<style>
+  @font-face {
+    font-family: "W95FA";
+    src: url("fonts/w95fa.woff2") format("woff2"),
+         url("fonts/w95fa.woff") format("woff"),
+         url("fonts/W95FA.otf") format("opentype");
+    font-display: block;
+  }
+  body, button, input, select, h1, h2 { font-family: "W95FA", "MS Sans Serif", Tahoma, sans-serif; }
+  body { padding: 0; background: #008080; } /* classic Win95 teal */
+  dialog:not([open]) { display: none; } /* 95css sets dialog{display:flex}, which un-hides closed dialogs */
+
+  .hero { text-align: center; padding: 14vh 1rem 0; }
+  .hero h1 { font-size: clamp(4rem, 11vw, 9rem); line-height: 1; margin: 0; }
+  .hero p { font-size: clamp(.95rem, 1.8vw, 1.3rem); margin-top: 1.2rem; }
+
+  .searchzone { max-width: 46rem; margin: 7vh auto 0; padding: 0 1.5rem; }
+  #fire { display: block; margin: 0 auto; font-size: 1.6rem; padding: .55em 1.6em; }
+  #boot .note { text-align: center; margin-top: .9rem; font-size: .95rem; opacity: .85; }
+  #warm progress { display: block; margin: 0 auto; max-width: 30rem; }
+  #warm #step { text-align: center; margin-top: .8rem; font-size: 1.05rem; }
+  .searchrow { display: flex; gap: 10px; }
+  #q { flex: 1; font-size: 1.5rem; padding: .45em .55em; border: none; background: var(--color-white); box-shadow: var(--shadow-inner-2); min-width: 0; }
+  #q::-webkit-search-cancel-button { -webkit-appearance: none; }
+  #go { font-size: 1.3rem; padding: .3em 1.2em; }
+  .optionsrow { display: flex; justify-content: center; align-items: center; gap: .55rem; margin-top: 1.1rem; font-size: 1rem; white-space: nowrap; }
+  .optionsrow select, .optionsrow input { font-size: 1rem; border: none; background: var(--color-white); box-shadow: var(--shadow-inner-2); padding: .15em .3em; }
+  .optionsrow input { width: 4em; }
+  .optionsrow .sep { opacity: .55; margin: 0 .5rem; }
+
+  #win { max-width: 64rem; margin: 6vh auto 10vh; }
+  #win .dialog-header h2 { font-size: 1.05rem; }
+  .winbar { display: flex; align-items: center; gap: .6rem; margin-bottom: -2px; }
+  .winbar .spacer { flex: 1; }
+  .winbar select { font-size: .95rem; border: none; background: var(--color-white); box-shadow: var(--shadow-inner-2); padding: .1em .3em; }
+  #csv { font-size: .95rem; }
+  #variants { font-size: .95rem; margin: .7rem 2px; }
+  #variants b { color: #0f0086; }
+  .panel { background: var(--color-white); box-shadow: var(--shadow-inner-3); padding: 1.6rem 1.8rem; max-height: 62vh; overflow-y: auto; }
+  .hit + .hit { border-top: 2px dotted #9c9c9c; margin-top: 1.5rem; padding-top: 1.5rem; }
+  .hit-head { margin-bottom: .4rem; line-height: 1.35; }
+  .hit-head .issue { color: maroon; }
+  .hit-head .heading { color: #0f0086; cursor: pointer; text-decoration: underline; }
+  .hit-head .meta { font-size: .85rem; opacity: .6; display: block; }
+  .snippet { white-space: pre-wrap; font-size: 1.05rem; line-height: 1.5; }
+  mark { background: var(--color-yellow); padding: 0 .1em; }
+  table { border-collapse: collapse; width: 100%; }
+  th, td { border: 1px solid #9c9c9c; padding: .5rem .7rem; text-align: left; vertical-align: top; font-size: .95rem; }
+  th { background: #dedede; }
+
+  #reader { max-width: 52rem; width: 92%; max-height: 85vh; margin: auto; }
+  #reader .dialog-header { display: flex; align-items: center; }
+  #reader .dialog-header button { margin-left: auto; }
+  #reader .dialog-body { overflow-y: auto; }
+  #reader .body-text { white-space: pre-wrap; font-size: 1.05rem; line-height: 1.55; background: var(--color-white); box-shadow: var(--shadow-inner-3); padding: 1.6rem 1.8rem; }
+  #reader::backdrop { background: rgba(0, 50, 50, .5); }
+  [hidden] { display: none !important; }
+</style>
+</head>
+<body>
+<div class="hero">
+  <h1>THE NEW AGE</h1>
+  <p>16,064 articles &middot; 806 issues &middot; 1907&ndash;1922</p>
+</div>
+
+<div class="searchzone">
+  <div id="boot" hidden>
+    <button id="fire">Fire up search</button>
+    <div class="note">first visit downloads about 160 MB &mdash; your browser keeps it for next time.<br>works best on a desktop browser. everything runs on your machine; searches never leave it.</div>
+  </div>
+  <div id="warm" hidden>
+    <progress id="prog" max="1" value="0"></progress>
+    <div id="step">starting&hellip;</div>
+  </div>
+  <div id="searchui" hidden>
+    <div class="searchrow">
+      <input id="q" type="search" autofocus>
+      <button id="go">Search</button>
+    </div>
+    <div class="optionsrow">
+      search by <select id="mode" title="meaning finds passages about your idea; spelling finds a word and its old printing variants">
+        <option value="both">meaning + spelling</option>
+        <option value="meaning">meaning</option>
+        <option value="spelling">spelling</option>
+      </select>
+      <span class="sep">&middot;</span>
+      articles <input id="topk" type="number" value="50" min="0" step="10" title="how many articles to show — 0 means every match">
+      <span class="sep">&middot;</span>
+      spelling match <input id="cutoff" type="number" value="80" min="50" max="100" title="50–100 — lower catches more printing errors, 100 means exact spelling only">
+    </div>
+  </div>
+</div>
+
+<dialog id="win" class="w-full">
+  <div class="dialog-header"><h2 id="title">RESULTS.TXT</h2></div>
+  <div class="dialog-body">
+    <div class="winbar">
+      <div class="tabs" role="tablist">
+        <button type="button" class="tab is-active" id="tab-results">Results</button>
+        <button type="button" class="tab" id="tab-rollup">By issue</button>
+      </div>
+      <div class="spacer"></div>
+      sort by <select id="sort">
+        <option value="best">best match</option>
+        <option value="hits">most hits</option>
+        <option value="oldest">oldest first</option>
+        <option value="newest">newest first</option>
+      </select>
+      <button id="csv">Export CSV</button>
+    </div>
+    <div id="variants" hidden></div>
+    <div class="panel" id="results"></div>
+    <div class="panel" id="rollup" hidden></div>
+  </div>
+</dialog>
+
+<dialog id="reader">
+  <div class="dialog-header"><h2 id="r-head"></h2><button onclick="reader.close()">&#10005;</button></div>
+  <div class="dialog-body"><div class="body-text" id="r-body"></div></div>
+</dialog>
+
+<script>
+const $ = id => document.getElementById(id);
+const reader = $("reader");
+let worker = null;
+let hits = [];
+let baseTerms = new Set();
+let readerHit = null;
+let pendingQ = new URLSearchParams(location.search).get("q");
+
+function boot() {
+  if (pendingQ) startWarmup();
+  else $("boot").hidden = false;
+}
+
+function startWarmup() {
+  navigator.storage?.persist?.();
+  worker = new Worker("worker.js", { type: "module" });
+  worker.onmessage = onWorker;
+  worker.postMessage({ type: "load" });
+  $("boot").hidden = true;
+  $("warm").hidden = false;
+}
+
+function onWorker(e) {
+  const m = e.data;
+  if (m.type === "progress") { $("prog").value = m.frac; $("step").textContent = m.label; }
+  else if (m.type === "ready") showSearch();
+  else if (m.type === "results") showResults(m);
+  else if (m.type === "article") showArticle(m);
+  else if (m.type === "error") { $("warm").hidden = false; $("step").textContent = "something went wrong — " + m.message; }
+}
+
+function showSearch() {
+  $("warm").hidden = true;
+  $("searchui").hidden = false;
+  $("q").focus();
+  if (pendingQ) { $("q").value = pendingQ; pendingQ = null; search(); }
+}
+
+function search() {
+  const q = $("q").value.trim();
+  if (!q) return;
+  history.replaceState(null, "", "?q=" + encodeURIComponent(q));
+  $("win").open = true;
+  $("title").textContent = "RESULTS.TXT — searching…";
+  $("results").innerHTML = $("rollup").innerHTML = "";
+  $("variants").hidden = true;
+  worker.postMessage({ type: "search", q, mode: $("mode").value, topK: +$("topk").value, cutoff: +$("cutoff").value });
+}
+
+function showResults(data) {
+  hits = data.results;
+  const issues = new Set(hits.map(h => h.issue_id));
+  $("title").textContent = "RESULTS.TXT — " + (hits.length
+    ? `${hits.length} article${hits.length > 1 ? "s" : ""} · ${issues.size} issue${issues.size > 1 ? "s" : ""} · ${data.took} s`
+    : "no results");
+
+  if (data.variants.length) {
+    $("variants").hidden = false;
+    $("variants").innerHTML = "variant spellings found: " +
+      data.variants.map(v => `<b>${esc(v.token)}</b> (${Math.round(v.score)})`).join(", ");
+  }
+  baseTerms = new Set(data.variants.map(v => v.token));
+  $("q").value.trim().toLowerCase().split(/\W+/).filter(w => w.length >= 3).forEach(w => baseTerms.add(w));
+  if (!hits.length) return;
+
+  $("sort").value = "best";
+  renderResults();
+  renderRollup();
+  showTab("results");
+  $("win").scrollIntoView({ behavior: "smooth" });
+}
+
+function markPattern(h) {
+  const terms = new Set(baseTerms);
+  (h?.matched_variant || "").toLowerCase().split(/\W+/).filter(w => w.length >= 3).forEach(w => terms.add(w));
+  return terms.size
+    ? new RegExp("\\b(" + [...terms].sort((a, b) => b.length - a.length).map(reEsc).join("|") + ")\\b", "gi")
+    : null;
+}
+
+function renderResults() {
+  $("results").innerHTML = hits.map((h, i) => {
+    const pat = markPattern(h);
+    const score = h.rrf_score ?? h.score;
+    const bits = [`${h.hits} hit${h.hits > 1 ? "s" : ""} in article`, `score ${score}`];
+    if (h.found_by) bits.push("found by " + h.found_by);
+    if (h.matched_variant) bits.push("matched: " + esc(h.matched_variant));
+    let snip = esc(h.text.replace(/^#+ */gm, "").replace(/\*\*/g, ""));
+    if (pat) snip = snip.replace(pat, "<mark>$1</mark>");
+    return `<div class="hit">
+      <div class="hit-head">
+        <span class="issue">${esc(h.issue_id)}</span> &nbsp; ${fmtDate(h.date)} &nbsp;
+        <span class="heading" onclick="openArticle(${i})" title="read full article">${esc(clean(h.heading))}</span>
+        <span class="meta">${bits.join(" &middot; ")}</span>
+      </div>
+      <div class="snippet">${snip}</div>
+    </div>`;
+  }).join("");
+}
+
+function sortResults() {
+  const key = $("sort").value;
+  hits.sort((a, b) =>
+    key === "hits" ? b.hits - a.hits || a.rank - b.rank
+    : key === "oldest" ? a.date.localeCompare(b.date) || a.rank - b.rank
+    : key === "newest" ? b.date.localeCompare(a.date) || a.rank - b.rank
+    : a.rank - b.rank);
+  renderResults();
+  showTab("results");
+}
+
+function renderRollup() {
+  const by = {};
+  hits.forEach(h => {
+    const e = by[h.issue_id] ??= { n: 0, heads: new Set() };
+    e.n += h.hits;
+    e.heads.add(clean(h.heading));
+  });
+  const rows = Object.entries(by).sort((a, b) => b[1].n - a[1].n);
+  $("rollup").innerHTML = `<table><tr><th>issue</th><th>hits</th><th>articles</th></tr>` +
+    rows.map(([id, v]) => `<tr><td>${esc(id)}</td><td>${v.n}</td><td>${[...v.heads].map(esc).join(" &middot; ")}</td></tr>`).join("") +
+    "</table>";
+}
+
+function showTab(which) {
+  $("tab-results").classList.toggle("is-active", which === "results");
+  $("tab-rollup").classList.toggle("is-active", which === "rollup");
+  $("results").hidden = which !== "results";
+  $("rollup").hidden = which !== "rollup";
+}
+
+function openArticle(i) {
+  readerHit = hits[i];
+  worker.postMessage({ type: "article", art: readerHit.art });
+}
+
+function showArticle(a) {
+  $("r-head").textContent = `${a.issue_id} — ${clean(a.heading)}`;
+  const pat = markPattern(readerHit);
+  let body = esc(a.text.replace(/^#+ */gm, "").replace(/\*\*/g, ""));
+  if (pat) body = body.replace(pat, "<mark>$1</mark>");
+  $("r-body").innerHTML = body;
+  reader.showModal();
+}
+
+function exportCsv() {
+  const cols = ["issue_id", "date", "heading", "article_num", "hits", "score", "rrf_score", "found_by", "matched_variant", "text"];
+  const csv = [cols.join(",")].concat(hits.map(h =>
+    cols.map(c => `"${String(h[c] ?? "").replaceAll('"', '""')}"`).join(","))).join("\n");
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(new Blob([csv], { type: "text/csv" }));
+  a.download = `search_${$("q").value.trim().replaceAll(/\W+/g, "_")}.csv`;
+  a.click();
+}
+
+const MONTHS = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+const fmtDate = d => { const [y, m, dd] = d.split("-"); return `${+dd} ${MONTHS[m - 1]} ${y}`; };
+const esc = s => String(s).replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+const clean = s => String(s).replace(/<[^>]*>/g, "").replace(/[\\#*_]/g, "").trim();  // strip OCR markup from headings
+const reEsc = s => s.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
+
+$("go").onclick = search;
+$("q").onkeydown = e => { if (e.key === "Enter") search(); };
+$("fire").onclick = startWarmup;
+$("csv").onclick = exportCsv;
+$("sort").onchange = sortResults;
+$("tab-results").onclick = () => showTab("results");
+$("tab-rollup").onclick = () => showTab("rollup");
+reader.onclick = e => { if (e.target === reader) reader.close(); };
+
+boot();
+</script>
+</body>
+</html>
