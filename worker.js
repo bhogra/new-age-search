@@ -20,7 +20,6 @@ self.onmessage = async (e) => {
 };
 
 const progress = (frac, label) => postMessage({ type: "progress", frac, label });
-const MB = (n) => Math.round(n / 1e6);
 
 async function fetchCached(url, onBytes) {
   const cache = typeof caches === "undefined" ? null : await caches.open("new-age-data-v1");
@@ -55,7 +54,7 @@ async function load() {
   let got = 0;
   const tick = (n) => {
     got += n;
-    progress(0.72 * got / total, `downloading the archive — ${MB(got)} of ${MB(total)} MB`);
+    progress(0.72 * got / total, "downloading the archive…");
   };
   const files = {};
   await Promise.all(Object.keys(meta.bytes).map(async (f) => { files[f] = await fetchCached("data/" + f, tick); }));
@@ -80,7 +79,7 @@ async function load() {
       if (p.status !== "progress") return;
       loaded[p.file] = p.loaded;
       const sum = Object.values(loaded).reduce((a, b) => a + b, 0);
-      progress(0.75 + 0.23 * Math.min(1, sum / 35e6), `downloading the language model — ${MB(sum)} of 35 MB`);
+      progress(0.75 + 0.23 * Math.min(1, sum / 35e6), "downloading the language model…");
     },
   });
   embedder = async (q) => (await pipe([PREFIX + q], { pooling: "cls", normalize: true })).data;

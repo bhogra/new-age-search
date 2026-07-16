@@ -24,7 +24,6 @@
 
   .searchzone { max-width: 46rem; margin: 7vh auto 0; padding: 0 1.5rem; }
   #fire { display: block; margin: 0 auto; font-size: 1.6rem; padding: .55em 1.6em; }
-  #boot .note { text-align: center; margin-top: .9rem; font-size: .95rem; opacity: .85; }
   #warm progress { display: block; margin: 0 auto; max-width: 30rem; }
   #warm #step { text-align: center; margin-top: .8rem; font-size: 1.05rem; }
   .searchrow { display: flex; gap: 10px; }
@@ -74,7 +73,6 @@
 <div class="searchzone">
   <div id="boot" hidden>
     <button id="fire">Fire up search</button>
-    <div class="note">first visit downloads about 160 MB &mdash; your browser keeps it for next time.<br>works best on a desktop browser. everything runs on your machine; searches never leave it.</div>
   </div>
   <div id="warm" hidden>
     <progress id="prog" max="1" value="0"></progress>
@@ -94,7 +92,7 @@
       <span class="sep">&middot;</span>
       articles <input id="topk" type="number" value="50" min="0" step="10" title="how many articles to show — 0 means every match">
       <span class="sep">&middot;</span>
-      spelling match <input id="cutoff" type="number" value="80" min="50" max="100" title="50–100 — lower catches more printing errors, 100 means exact spelling only">
+      spelling match <input id="cutoff" type="number" value="90" min="50" max="100" title="50–100 — lower catches more printing errors, 100 means exact spelling only">
     </div>
   </div>
 </div>
